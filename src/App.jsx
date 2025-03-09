@@ -1,3 +1,4 @@
+// country-hook/src/App.jsx
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -16,12 +17,33 @@ const useField = (type) => {
 }
 
 const useCountry = (name) => {
-  const [country, setCountry] = useState(null)
+  const [country, setCountry] = useState(null);
 
-  useEffect(() => {})
+  useEffect(() => {
+    if (name) { // Only fetch if name isn’t empty
+      axios
+        .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${name}`)
+        .then((response) => {
+          setCountry({
+            found: true,
+            data: {
+              name: response.data.name.common,    // "Finland"
+              capital: response.data.capital[0],  // "Helsinki" (array to string)
+              population: response.data.population, // 5530719
+              flag: response.data.flags.png       // URL to flag image
+            }
+          });
+        })
+        .catch(() => {
+          setCountry({ found: false }); // Not found
+        });
+    } else {
+      setCountry(null); // Reset if name is empty
+    }
+  }, [name]); // Run when name changes
 
-  return country
-}
+  return country;
+};
 
 const Country = ({ country }) => {
   if (!country) {
